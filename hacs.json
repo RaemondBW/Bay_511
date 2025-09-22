@@ -1,5 +1,8 @@
 {
-    "name": "Integration blueprint",
+    "name": "Bay Area 511 Transit",
     "homeassistant": "2025.2.4",
-    "hacs": "2.0.5"
+    "hacs": "2.0.5",
+    "domains": ["sensor"],
+    "country": "US",
+    "render_readme": true
 }

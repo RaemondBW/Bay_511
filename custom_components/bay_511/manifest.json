@@ -1,0 +1,13 @@
+{
+  "domain": "bay_511",
+  "name": "Bay Area 511 Transit",
+  "codeowners": [
+    "@raemond"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/raemond/bay_511",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/raemond/bay_511/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

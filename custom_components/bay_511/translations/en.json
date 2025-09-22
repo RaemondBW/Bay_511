@@ -1,0 +1,31 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Bay Area 511 Transit Configuration",
+                "description": "Enter your 511.org API key. Get one at https://511.org/open-data/token",
+                "data": {
+                    "api_key": "API Key"
+                }
+            },
+            "stops": {
+                "title": "Configure Transit Stop",
+                "description": "Add a transit stop to monitor. You've added {stops_added} stops so far.",
+                "data": {
+                    "agency": "Transit Agency (e.g., SF, AC, BA)",
+                    "stop_code": "Stop Code",
+                    "add_another": "Add another stop"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Invalid API key.",
+            "cannot_connect": "Unable to connect to 511 API.",
+            "unknown": "Unknown error occurred.",
+            "no_stops": "At least one stop must be configured."
+        },
+        "abort": {
+            "already_configured": "This API key is already configured."
+        }
+    }
+}
