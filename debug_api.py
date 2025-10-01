@@ -2,12 +2,15 @@
 """Debug the 511 API response format."""
 
 import asyncio
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import aiohttp
 import json
+
+import aiohttp
+
 
 async def main():
     api_key = "774056c2-3a11-40e3-9b64-b3c8bb39b0c8"
@@ -34,12 +37,12 @@ async def main():
                 text = await response.text()
 
                 # Remove BOM if present
-                if text.startswith('\ufeff'):
+                if text.startswith("\ufeff"):
                     text = text[1:]
                     print("Removed BOM from response")
 
                 print(f"Raw response length: {len(text)}")
-                print(f"First 500 characters of response:")
+                print("First 500 characters of response:")
                 print(text[:500])
 
                 try:

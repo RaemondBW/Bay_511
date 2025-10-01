@@ -14,8 +14,10 @@ from .api import (
 from .const import LOGGER
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
     from datetime import timedelta
+
+    from homeassistant.core import HomeAssistant
+
     from .api import Bay511ApiClient
 
 
@@ -45,10 +47,10 @@ class Bay511DataUpdateCoordinator(DataUpdateCoordinator):
         """Update data via library."""
         try:
             return await self.client.async_get_stop_monitoring(
-                self.agency,
-                self.stop_code
+                self.agency, self.stop_code
             )
         except Bay511ApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
         except Bay511ApiClientError as exception:
             raise UpdateFailed(exception) from exception
+

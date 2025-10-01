@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import socket
-from typing import Any
 from datetime import datetime
-import xml.etree.ElementTree as ET
+from typing import Any
 
 import aiohttp
 import async_timeout
@@ -77,7 +77,9 @@ class Bay511ApiClient:
             params=params,
         )
 
-    async def async_get_stops_for_operator(self, operator_id: str) -> list[dict[str, Any]]:
+    async def async_get_stops_for_operator(
+        self, operator_id: str
+    ) -> list[dict[str, Any]]:
         """Get stops for a specific operator."""
         params = {
             "api_key": self._api_key,
@@ -116,27 +118,40 @@ class Bay511ApiClient:
 
                     # Extract stop info (same for all visits)
                     if result["stop_name"] is None:
-                        result["stop_name"] = monitored_vehicle.get("MonitoredCall", {}).get("StopPointName")
-                        result["stop_code"] = monitored_vehicle.get("MonitoredCall", {}).get("StopPointRef")
+                        monitored_call = monitored_vehicle.get("MonitoredCall", {})
+                        result["stop_name"] = monitored_call.get("StopPointName")
+                        result["stop_code"] = monitored_call.get("StopPointRef")
 
                     # Extract arrival info
+                    monitored_call = monitored_vehicle.get("MonitoredCall", {})
                     arrival_info = {
                         "line_ref": monitored_vehicle.get("LineRef"),
                         "direction": monitored_vehicle.get("DirectionRef"),
                         "destination": monitored_vehicle.get("DestinationName"),
-                        "aimed_arrival_time": monitored_vehicle.get("MonitoredCall", {}).get("AimedArrivalTime"),
-                        "expected_arrival_time": monitored_vehicle.get("MonitoredCall", {}).get("ExpectedArrivalTime"),
-                        "vehicle_at_stop": monitored_vehicle.get("MonitoredCall", {}).get("VehicleAtStop", False),
+                        "aimed_arrival_time": monitored_call.get(
+                            "AimedArrivalTime"
+                        ),
+                        "expected_arrival_time": monitored_call.get(
+                            "ExpectedArrivalTime"
+                        ),
+                        "vehicle_at_stop": monitored_call.get(
+                            "VehicleAtStop", False
+                        ),
                     }
 
                     # Calculate minutes until arrival
                     if arrival_info["expected_arrival_time"]:
                         try:
-                            expected = datetime.fromisoformat(arrival_info["expected_arrival_time"].replace("Z", "+00:00"))
+                            expected_str = arrival_info["expected_arrival_time"]
+                            expected = datetime.fromisoformat(
+                                expected_str
+                            )
                             now = datetime.now(expected.tzinfo)
-                            minutes_away = int((expected - now).total_seconds() / 60)
-                            arrival_info["minutes_away"] = max(0, minutes_away)  # Don't show negative times
-                        except Exception as e:
+                            seconds = (expected - now).total_seconds()
+                            minutes_away = int(seconds / 60)
+                            # Don't show negative times
+                            arrival_info["minutes_away"] = max(0, minutes_away)
+                        except Exception as e:  # noqa: BLE001
                             LOGGER.debug("Could not calculate minutes away: %s", e)
                             arrival_info["minutes_away"] = None
                     else:
@@ -144,7 +159,7 @@ class Bay511ApiClient:
 
                     result["arrivals"].append(arrival_info)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             LOGGER.error("Error parsing stop monitoring data: %s", e)
 
         return result
@@ -173,11 +188,9 @@ class Bay511ApiClient:
                 text = await response.text()
 
                 # Remove BOM if present
-                if text.startswith('\ufeff'):
-                    text = text[1:]
+                text = text.removeprefix("\ufeff")
 
                 # Parse JSON manually
-                import json
                 return json.loads(text)
 
         except TimeoutError as exception:
@@ -192,3 +205,4 @@ class Bay511ApiClient:
         except Exception as exception:
             msg = f"Something really wrong happened! - {exception}"
             raise Bay511ApiClientError(msg) from exception
+

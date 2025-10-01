@@ -5,12 +5,15 @@ This can be used to verify your API key and test stop predictions.
 """
 
 import asyncio
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import aiohttp
+
 from custom_components.bay_511.api import Bay511ApiClient
+
 
 async def main():
     print("Bay Area 511 API Test Script")
@@ -51,14 +54,14 @@ async def main():
                     data = await client.async_get_stop_monitoring(test_stop, stop_code)
 
                     print(f"   Stop: {data.get('stop_name', 'Unknown')}")
-                    arrivals = data.get('arrivals', [])
+                    arrivals = data.get("arrivals", [])
 
                     if arrivals:
                         print(f"   Found {len(arrivals)} arrivals:")
                         for i, arrival in enumerate(arrivals[:3], 1):
-                            mins = arrival.get('minutes_away', 'Unknown')
-                            line = arrival.get('line_ref', 'Unknown')
-                            dest = arrival.get('destination', 'Unknown')
+                            mins = arrival.get("minutes_away", "Unknown")
+                            line = arrival.get("line_ref", "Unknown")
+                            dest = arrival.get("destination", "Unknown")
                             print(f"   {i}. Line {line} to {dest}: {mins} minutes")
                     else:
                         print("   No arrivals found")

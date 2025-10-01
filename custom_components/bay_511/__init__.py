@@ -21,9 +21,9 @@ from .const import (
     CONF_STOP_CODE,
     CONF_STOPS,
     DEFAULT_UPDATE_INTERVAL,
-    DOMAIN,
-    LOGGER,
 )
+from .const import DOMAIN as DOMAIN
+from .const import LOGGER as LOGGER
 from .coordinator import Bay511DataUpdateCoordinator
 from .data import Bay511Data
 
@@ -92,3 +92,4 @@ async def async_reload_entry(
 ) -> None:
     """Reload config entry."""
     await hass.config_entries.async_reload(entry.entry_id)
+

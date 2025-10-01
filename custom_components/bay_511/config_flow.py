@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.helpers import selector
@@ -96,25 +94,24 @@ class Bay511FlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 self._stops.append(stop_entry)
                 # Show the form again for another stop
                 return await self.async_step_stops()
+            # Finish configuration
+            if stop_entry[CONF_STOP_CODE]:  # Only add if stop code was provided
+                self._stops.append(stop_entry)
+
+            if not self._stops:
+                _errors["base"] = "no_stops"
             else:
-                # Finish configuration
-                if stop_entry[CONF_STOP_CODE]:  # Only add if stop code was provided
-                    self._stops.append(stop_entry)
+                # Create the config entry
+                await self.async_set_unique_id(f"bay_511_{self._api_key[:8]}")
+                self._abort_if_unique_id_configured()
 
-                if not self._stops:
-                    _errors["base"] = "no_stops"
-                else:
-                    # Create the config entry
-                    await self.async_set_unique_id(f"bay_511_{self._api_key[:8]}")
-                    self._abort_if_unique_id_configured()
-
-                    return self.async_create_entry(
-                        title=f"Bay Area 511 ({len(self._stops)} stops)",
-                        data={
-                            CONF_API_KEY: self._api_key,
-                            CONF_STOPS: self._stops,
-                        },
-                    )
+                return self.async_create_entry(
+                    title=f"Bay Area 511 ({len(self._stops)} stops)",
+                    data={
+                        CONF_API_KEY: self._api_key,
+                        CONF_STOPS: self._stops,
+                    },
+                )
 
         return self.async_show_form(
             step_id="stops",
@@ -130,7 +127,9 @@ class Bay511FlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                             type=selector.TextSelectorType.TEXT,
                         ),
                     ),
-                    vol.Optional("add_another", default=False): selector.BooleanSelector(),
+                    vol.Optional(
+                        "add_another", default=False
+                    ): selector.BooleanSelector(),
                 },
             ),
             errors=_errors,
